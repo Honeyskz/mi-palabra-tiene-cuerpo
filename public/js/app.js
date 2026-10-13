@@ -71,6 +71,71 @@ document.addEventListener('DOMContentLoaded', () => {
     prev.src = URL.createObjectURL(f);
     prev.hidden = false;
   });
+    // Cámara web (computadora) o cámara nativa (celular)
+  const nativo = document.getElementById('subir-nativo');
+  const btnCam = document.getElementById('btn-camara');
+  const visor = document.getElementById('visor');
+  const video = document.getElementById('video');
+  const lienzo = document.getElementById('lienzo');
+  const formFoto = input?.closest('form');
+  let stream = null;
+
+  const esTactil = window.matchMedia('(pointer:coarse)').matches;
+  const hayCamara = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext;
+
+  if (btnCam && !esTactil && hayCamara) {
+    nativo.hidden = true;
+    btnCam.hidden = false;
+  }
+
+  const cerrarCamara = () => {
+    stream?.getTracks().forEach(t => t.stop());
+    stream = null;
+    video.srcObject = null;
+    visor.hidden = true;
+    btnCam.hidden = false;
+  };
+
+  btnCam?.addEventListener('click', async () => {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1280 } },
+        audio: false
+      });
+      video.srcObject = stream;
+      visor.hidden = false;
+      btnCam.hidden = true;
+    } catch (e) {
+      alert('No se pudo acceder a la cámara. Elegí una foto desde tu equipo.');
+      btnCam.hidden = true;
+      nativo.hidden = false;
+    }
+  });
+
+  document.getElementById('btn-capturar')?.addEventListener('click', () => {
+    lienzo.width = video.videoWidth;
+    lienzo.height = video.videoHeight;
+    lienzo.getContext('2d').drawImage(video, 0, 0);
+    lienzo.toBlob(blob => {
+      const archivo = new File([blob], 'foto.jpg', { type: 'image/jpeg' });
+      const dt = new DataTransfer();
+      dt.items.add(archivo);
+      input.files = dt.files;
+      prev.src = URL.createObjectURL(archivo);
+      prev.hidden = false;
+      cerrarCamara();
+      btnCam.textContent = '🔄 Sacar otra foto';
+    }, 'image/jpeg', 0.9);
+  });
+
+  document.getElementById('btn-cancelar')?.addEventListener('click', cerrarCamara);
+
+  formFoto?.addEventListener('submit', e => {
+    if (!input.files.length) {
+      e.preventDefault();
+      alert('Primero sacá una foto.');
+    }
+  });
 
   // Contador de caracteres
   const ta = document.getElementById('texto-respuesta');

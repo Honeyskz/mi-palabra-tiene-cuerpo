@@ -46,13 +46,26 @@
                 <label>Tu nombre (opcional)
                     <input type="text" name="nombre" maxlength="60">
                 </label>
-                <label class="subir">
-                    <span>📷 Elegí tu foto</span>
-                    <input type="file" name="imagen" accept="image/*" id="input-foto" required>
-                </label>
+                <div class="camara">
+                    <label class="subir" id="subir-nativo">
+                        <span>📸 Sacar foto</span>
+                        <input type="file" name="imagen" accept="image/*" capture="environment" id="input-foto">
+                    </label>
+
+                    <button type="button" class="btn btn-crema" id="btn-camara" hidden>📸 Sacar foto</button>
+
+                    <div class="visor" id="visor" hidden>
+                        <video id="video" autoplay playsinline muted></video>
+                        <canvas id="lienzo" hidden></canvas>
+                        <div class="visor-botones">
+                            <button type="button" class="btn btn-naranja" id="btn-capturar">Capturar</button>
+                            <button type="button" class="btn btn-crema" id="btn-cancelar">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
                 <img id="vista-previa" class="vista-previa" alt="Vista previa" hidden>
                 @error('imagen', 'foto') <p class="error">{{ $message }}</p> @enderror
-                <button class="btn btn-naranja" type="submit">Subir al mural</button>
+                <button class="btn btn-naranja" type="submit">Enviar foto al mural</button>
             </form>
         </div>
 
